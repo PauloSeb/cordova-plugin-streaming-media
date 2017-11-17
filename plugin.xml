@@ -52,9 +52,11 @@
 			<uses-permission android:name="android.permission.INTERNET" />
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+			<service android:name="com.hutchind.cordova.plugins.streamingmedia.ProgressService"></service>
 			<activity android:configChanges="orientation|screenSize" android:name="com.hutchind.cordova.plugins.streamingmedia.SimpleAudioStream" android:label="Simple Audio Stream"></activity>
 			<activity android:configChanges="orientation|screenSize" android:name="com.hutchind.cordova.plugins.streamingmedia.SimpleVideoStream" android:label="Simple Video Stream"></activity>
 		</config-file>
+		<source-file src="src/android/com/hutchind/cordova/plugins/streamingmedia/ProgressService.java" target-dir="src/com/hutchind/cordova/plugins/streamingmedia" />
 		<source-file src="src/android/com/hutchind/cordova/plugins/streamingmedia/SimpleAudioStream.java" target-dir="src/com/hutchind/cordova/plugins/streamingmedia" />
 		<source-file src="src/android/com/hutchind/cordova/plugins/streamingmedia/SimpleVideoStream.java" target-dir="src/com/hutchind/cordova/plugins/streamingmedia" />
 		<source-file src="src/android/com/hutchind/cordova/plugins/streamingmedia/StreamingMedia.java" target-dir="src/com/hutchind/cordova/plugins/streamingmedia" />

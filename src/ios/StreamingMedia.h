@@ -4,6 +4,7 @@
 
 @interface StreamingMedia : CDVPlugin
 
+- (void)getVideoProgress:(CDVInvokedUrlCommand*)command;
 - (void)playVideo:(CDVInvokedUrlCommand*)command;
 - (void)playAudio:(CDVInvokedUrlCommand*)command;
 

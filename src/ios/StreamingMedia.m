@@ -72,6 +72,19 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
 	// No specific options for video yet
 }
 
+-(void)getprogress:(CDVInvokedUrlCommand *) command type:(NSString *) type {
+    double progress = 0.0;
+    if (moviePlayer) {
+        progress = [moviePlayer currentPlaybackTime] * 1000;
+    }
+    
+    CDVPluginResult* result = [CDVPluginResult
+                               resultWithStatus:CDVCommandStatus_OK
+                               messageAsDouble:progress];
+    
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
+
 -(void)play:(CDVInvokedUrlCommand *) command type:(NSString *) type {
 	callbackId = command.callbackId;
 	NSString *mediaUrl  = [command.arguments objectAtIndex:0];
@@ -99,6 +112,10 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     if (moviePlayer) {
         [moviePlayer stop];
     }
+}
+
+-(void)getVideoProgress:(CDVInvokedUrlCommand *) command {
+    [self getprogress:command type:[NSString stringWithString:TYPE_VIDEO]];
 }
 
 -(void)playVideo:(CDVInvokedUrlCommand *) command {
