@@ -24,6 +24,7 @@ public class StreamingMedia extends CordovaPlugin {
 	public static final String ACTION_GET_VIDEO_PROGRESS = "getVideoProgress";
 	public static final String ACTION_PLAY_AUDIO = "playAudio";
 	public static final String ACTION_PLAY_VIDEO = "playVideo";
+	public static final String ACTION_STOP_VIDEO = "stopVideo";
 
 	private static final int ACTIVITY_CODE_PLAY_MEDIA = 7;
 
@@ -142,11 +143,12 @@ public class StreamingMedia extends CordovaPlugin {
 
 		if (ACTION_GET_VIDEO_PROGRESS.equals(action)) {
 			return getVideoProgress(options);
-		}
-		if (ACTION_PLAY_AUDIO.equals(action)) {
+		} else if (ACTION_PLAY_AUDIO.equals(action)) {
 			return playAudio(args.getString(0), options);
 		} else if (ACTION_PLAY_VIDEO.equals(action)) {
 			return playVideo(args.getString(0), options);
+		} else if (ACTION_STOP_VIDEO.equals(action)) {
+			return stopVideo(options);
 		} else {
 			callbackContext.error("streamingMedia." + action + " is not a supported method.");
 			return false;
@@ -163,6 +165,21 @@ public class StreamingMedia extends CordovaPlugin {
 	}
 	private boolean playVideo(String url, JSONObject options) {
 		return play(SimpleVideoStream.class, url, options);
+	}
+
+	private boolean stopVideo(JSONObject options) {
+		try {
+			Message msg = Message.obtain(null,
+					ProgressService.MSG_STOP);
+			msg.replyTo = mMessenger;
+			mService.send(msg);
+		} catch (RemoteException e) {
+			// In this case the service has crashed before we could even
+			// do anything with it; we can count on soon being
+			// disconnected (and then reconnected if it can be restarted)
+			// so there is no need to do anything here.
+		}
+		return true;
 	}
 
 	private boolean play(final Class activityClass, final String url, final JSONObject options) {

@@ -18,7 +18,8 @@ import java.util.ArrayList;
 
 public class ProgressService extends Service {
     /** Keeps track of all current registered clients. */
-    ArrayList<Messenger> mClients = new ArrayList<Messenger>();
+    Messenger mSimpleVideoStream;
+    Messenger mStreamingMedia;
     /** Holds last progress set by a client. */
     int mProgress = 0;
 
@@ -44,6 +45,13 @@ public class ProgressService extends Service {
     static final int MSG_PROGRESS = 3;
 
     /**
+     * Command to service to update progress.  This can be sent to the
+     * service to supply a progress, and will be sent by the service to
+     * any registered clients with the new progress.
+     */
+    static final int MSG_STOP = 4;
+
+    /**
      * Handler of incoming messages from clients.
      */
     class IncomingHandler extends Handler {
@@ -51,23 +59,39 @@ public class ProgressService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
-                    mClients.add(msg.replyTo);
+                    mStreamingMedia = msg.replyTo;
                     break;
                 case MSG_UNREGISTER_CLIENT:
-                    mClients.remove(msg.replyTo);
+                    mStreamingMedia = null;
                     break;
                 case MSG_PROGRESS:
+                    mSimpleVideoStream = msg.replyTo;
                     mProgress = msg.arg1;
-                    for (int i=mClients.size()-1; i>=0; i--) {
-                        try {
-                            mClients.get(i).send(Message.obtain(null,
+                    try {
+                        if (mStreamingMedia != null) {
+                            mStreamingMedia.send(Message.obtain(null,
                                     MSG_PROGRESS, mProgress, 0));
-                        } catch (RemoteException e) {
-                            // The client is dead.  Remove it from the list;
-                            // we are going through the list from back to front
-                            // so this is safe to do inside the loop.
-                            mClients.remove(i);
                         }
+                    } catch (RemoteException e) {
+                        // The client is dead.  Remove it from the list;
+                        // we are going through the list from back to front
+                        // so this is safe to do inside the loop.
+                        mSimpleVideoStream = null;
+                        mStreamingMedia = null;
+                    }
+                    break;
+                case MSG_STOP:
+                    try {
+                        if (mSimpleVideoStream != null) {
+                            mSimpleVideoStream.send(Message.obtain(null,
+                                    MSG_STOP, 0, 0));
+                        }
+                    } catch (RemoteException e) {
+                        // The client is dead.  Remove it from the list;
+                        // we are going through the list from back to front
+                        // so this is safe to do inside the loop.
+                        mSimpleVideoStream = null;
+                        mStreamingMedia = null;
                     }
                     break;
                 default:

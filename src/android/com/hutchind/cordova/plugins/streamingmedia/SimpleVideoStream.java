@@ -44,6 +44,29 @@ public class SimpleVideoStream extends Activity implements
 	boolean mIsBound;
 
 	/**
+	 * Handler of incoming messages from service.
+	 */
+	class IncomingHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+				case ProgressService.MSG_STOP:
+					doUnbindService();
+					stop();
+					wrapItUp(RESULT_OK, null);
+					break;
+				default:
+					super.handleMessage(msg);
+			}
+		}
+	}
+
+	/**
+	 * Target we publish for clients to send messages to IncomingHandler.
+	 */
+	final Messenger mMessenger = new Messenger(new IncomingHandler());
+
+	/**
 	 * Class for interacting with the main interface of the service.
 	 */
 	private ServiceConnection mConnection = new ServiceConnection() {
@@ -175,6 +198,7 @@ public class SimpleVideoStream extends Activity implements
 			try {
 				Message msg = Message.obtain(null,
 						ProgressService.MSG_PROGRESS, progress, 0);
+				msg.replyTo = mMessenger;
 				if (mService != null) {
 					mService.send(msg);
 				}
@@ -225,6 +249,7 @@ public class SimpleVideoStream extends Activity implements
 	}
 
 	public void onCompletion(MediaPlayer mp) {
+		doUnbindService();
 		stop();
 		if (mShouldAutoClose) {
 			wrapItUp(RESULT_OK, null);

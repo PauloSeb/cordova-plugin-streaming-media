@@ -138,6 +138,10 @@ NSString * const DEFAULT_IMAGE_SCALE = @"center";
     [self stop:command type:[NSString stringWithString:TYPE_AUDIO]];
 }
 
+-(void)stopVideo:(CDVInvokedUrlCommand *) command {
+    [self stop:command type:[NSString stringWithString:TYPE_VIDEO]];
+}
+
 -(void) setBackgroundColor:(NSString *)color {
 	if ([color hasPrefix:@"#"]) {
 		// HEX value
